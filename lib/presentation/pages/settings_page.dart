@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:i18next/i18next.dart';
+import 'package:intl/intl.dart';
 import 'package:untense/core/constants/app_constants.dart';
+import 'package:untense/core/services/data_export_service.dart';
 import 'package:untense/core/utils/date_time_utils.dart';
 import 'package:untense/presentation/bloc/settings/settings_bloc.dart';
 import 'package:untense/presentation/bloc/settings/settings_event.dart';
@@ -216,6 +218,22 @@ class SettingsPage extends StatelessWidget {
               child: Column(
                 children: [
                   ListTile(
+                    leading: const Icon(Icons.upload_file),
+                    title: Text(
+                      i18n?.t('settings.exportData') ?? 'Export Data',
+                    ),
+                    onTap: () => _showExportDialog(context, i18n),
+                  ),
+                  const Divider(height: 1),
+                  ListTile(
+                    leading: const Icon(Icons.download),
+                    title: Text(
+                      i18n?.t('settings.importData') ?? 'Import Data',
+                    ),
+                    onTap: () => _handleImport(context, i18n),
+                  ),
+                  const Divider(height: 1),
+                  ListTile(
                     leading: Icon(
                       Icons.delete_forever,
                       color: theme.colorScheme.error,
@@ -325,6 +343,175 @@ class SettingsPage extends StatelessWidget {
     }
   }
 
+  // ====================== Export ======================
+
+  void _showExportDialog(BuildContext context, I18Next? i18n) {
+    showDialog(
+      context: context,
+      builder: (ctx) => SimpleDialog(
+        title: Text(
+          i18n?.t('settings.exportScope') ?? 'What would you like to export?',
+        ),
+        children: [
+          SimpleDialogOption(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              _doExport(context, ExportScope.entriesOnly, i18n);
+            },
+            child: ListTile(
+              leading: const Icon(Icons.list_alt),
+              title: Text(
+                i18n?.t('settings.exportEntries') ?? 'Export Entries',
+              ),
+              contentPadding: EdgeInsets.zero,
+            ),
+          ),
+          SimpleDialogOption(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              _doExport(context, ExportScope.settingsOnly, i18n);
+            },
+            child: ListTile(
+              leading: const Icon(Icons.settings),
+              title: Text(
+                i18n?.t('settings.exportSettings') ?? 'Export Settings',
+              ),
+              contentPadding: EdgeInsets.zero,
+            ),
+          ),
+          SimpleDialogOption(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              _doExport(context, ExportScope.both, i18n);
+            },
+            child: ListTile(
+              leading: const Icon(Icons.all_inclusive),
+              title: Text(i18n?.t('settings.exportAll') ?? 'Export All'),
+              contentPadding: EdgeInsets.zero,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _doExport(
+    BuildContext context,
+    ExportScope scope,
+    I18Next? i18n,
+  ) async {
+    final service = DataExportService();
+    final success = await service.exportAndShare(scope);
+    if (!context.mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          success
+              ? (i18n?.t('settings.exportSuccess') ?? 'Export successful!')
+              : (i18n?.t('settings.exportError') ?? 'Error during export.'),
+        ),
+      ),
+    );
+  }
+
+  // ====================== Import ======================
+
+  Future<void> _handleImport(BuildContext context, I18Next? i18n) async {
+    final service = DataExportService();
+
+    // 1. Pick and read file
+    final data = await service.pickAndReadFile();
+    if (data == null) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              i18n?.t('settings.importCancelled') ?? 'Import cancelled.',
+            ),
+          ),
+        );
+      }
+      return;
+    }
+
+    // 2. Validate
+    if (!service.isValidBackup(data)) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              i18n?.t('settings.importInvalidFile') ?? 'Invalid file.',
+            ),
+          ),
+        );
+      }
+      return;
+    }
+
+    // 3. Show confirmation dialog
+    final contents = service.describeBackup(data);
+    if (!context.mounted) return;
+
+    final importChoice = await showDialog<_ImportChoice>(
+      context: context,
+      builder: (ctx) => _ImportConfirmDialog(contents: contents, i18n: i18n),
+    );
+
+    if (importChoice == null || !context.mounted) return;
+
+    // 4. Perform import
+    final result = await service.importAll(
+      data,
+      includeEntries: importChoice.includeEntries,
+      includeSettings: importChoice.includeSettings,
+    );
+
+    if (!context.mounted) return;
+
+    if (result.hasError) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            i18n?.t('settings.importError') ?? 'Error during import.',
+          ),
+        ),
+      );
+      return;
+    }
+
+    // 5. Refresh BLoCs
+    if (result.entriesImported > 0) {
+      context.read<TensionBloc>().add(const LoadTodayEntries());
+    }
+    if (result.settingsImported) {
+      context.read<SettingsBloc>().add(const LoadSettings());
+    }
+
+    // 6. Show success
+    final parts = <String>[];
+    if (result.entriesImported > 0) {
+      parts.add(
+        i18n?.t(
+              'settings.importResultEntries',
+              variables: {'count': result.entriesImported.toString()},
+            ) ??
+            '${result.entriesImported} entries imported.',
+      );
+    }
+    if (result.settingsImported) {
+      parts.add(
+        i18n?.t('settings.importResultSettings') ?? 'Settings imported.',
+      );
+    }
+
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(parts.join(' '))));
+  }
+
+  // ====================== Delete All ======================
+
   void _confirmDeleteAll(BuildContext context, I18Next? i18n) {
     showDialog(
       context: context,
@@ -381,6 +568,119 @@ class _SectionHeader extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+// ====================== Import confirmation ======================
+
+class _ImportChoice {
+  final bool includeEntries;
+  final bool includeSettings;
+
+  const _ImportChoice({
+    required this.includeEntries,
+    required this.includeSettings,
+  });
+}
+
+class _ImportConfirmDialog extends StatefulWidget {
+  final BackupContents contents;
+  final I18Next? i18n;
+
+  const _ImportConfirmDialog({required this.contents, this.i18n});
+
+  @override
+  State<_ImportConfirmDialog> createState() => _ImportConfirmDialogState();
+}
+
+class _ImportConfirmDialogState extends State<_ImportConfirmDialog> {
+  late bool _includeEntries;
+  late bool _includeSettings;
+
+  @override
+  void initState() {
+    super.initState();
+    _includeEntries = widget.contents.hasEntries;
+    _includeSettings = widget.contents.hasSettings;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final i18n = widget.i18n;
+    final contents = widget.contents;
+
+    final dateLabel = contents.exportedAt != null
+        ? DateFormat.yMMMd().add_Hm().format(contents.exportedAt!.toLocal())
+        : '?';
+
+    return AlertDialog(
+      title: Text(i18n?.t('settings.importConfirmTitle') ?? 'Import Data'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            i18n?.t(
+                  'settings.importConfirmMessage',
+                  variables: {'date': dateLabel},
+                ) ??
+                'The backup from $dateLabel contains:',
+          ),
+          const SizedBox(height: 16),
+          if (contents.hasEntries)
+            CheckboxListTile(
+              value: _includeEntries,
+              onChanged: (v) => setState(() => _includeEntries = v ?? false),
+              title: Text(
+                i18n?.t(
+                      'settings.importEntries',
+                      variables: {'count': contents.entryCount.toString()},
+                    ) ??
+                    '${contents.entryCount} entries',
+              ),
+              controlAffinity: ListTileControlAffinity.leading,
+              contentPadding: EdgeInsets.zero,
+              dense: true,
+            ),
+          if (contents.hasSettings)
+            CheckboxListTile(
+              value: _includeSettings,
+              onChanged: (v) => setState(() => _includeSettings = v ?? false),
+              title: Text(
+                i18n?.t('settings.importSettingsLabel') ?? 'Settings',
+              ),
+              controlAffinity: ListTileControlAffinity.leading,
+              contentPadding: EdgeInsets.zero,
+              dense: true,
+            ),
+          const SizedBox(height: 8),
+          Text(
+            i18n?.t('settings.importWarning') ??
+                'Existing entries with the same ID will be overwritten.',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: Theme.of(context).colorScheme.error,
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(i18n?.t('common.cancel') ?? 'Cancel'),
+        ),
+        FilledButton(
+          onPressed: (_includeEntries || _includeSettings)
+              ? () => Navigator.of(context).pop(
+                  _ImportChoice(
+                    includeEntries: _includeEntries,
+                    includeSettings: _includeSettings,
+                  ),
+                )
+              : null,
+          child: Text(i18n?.t('settings.importData') ?? 'Import'),
+        ),
+      ],
     );
   }
 }
