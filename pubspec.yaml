@@ -1,5 +1,5 @@
 name: untense
-description: "A new Flutter project."
+description: "Untense - Therapeutic tension tracking diary app."
 publish_to: 'none'
 version: 0.1.0
 
@@ -9,6 +9,38 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # State Management - BLoC
+  flutter_bloc: ^9.1.0
+  bloc: ^9.0.0
+  equatable: ^2.0.7
+
+  # Local Database - Hive
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+
+  # Charts
+  fl_chart: ^0.70.2
+
+  # Dependency Injection
+  get_it: ^8.0.3
+
+  # Internationalization - i18next
+  i18next: ^0.9.0
+
+  # Local Notifications
+  flutter_local_notifications: ^18.0.1
+  timezone: ^0.10.0
+
+  # Utilities
+  uuid: ^4.5.1
+  intl: ^0.20.2
+  path_provider: ^2.1.5
+
+  # Routing
+  go_router: ^14.8.1
 
 dev_dependencies:
   flutter_test:
@@ -17,3 +49,7 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  assets:
+    - assets/
+    - localization/

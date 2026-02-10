@@ -1,30 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:untense/theme.dart';
+import 'package:untense/app.dart';
+import 'package:untense/core/services/notification_service.dart';
+import 'package:untense/data/datasources/hive_datasource.dart';
+import 'package:untense/di/service_locator.dart';
 
-void main() {
-  runApp(const MainApp());
-}
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
 
-class MainApp extends StatelessWidget {
-  const MainApp({super.key});
+  // Initialize Hive local database
+  await HiveDataSource.instance.initialize();
 
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: AppTheme.light,
-      darkTheme: AppTheme.dark,
-      themeMode: ThemeMode.system, // oder .light / .dark
-      home: Scaffold(
-        appBar: AppBar(title: Text('Untense')),
-        body: Center(
-          child: Card(
-            child: Container(
-              padding: EdgeInsets.all(16),
-              child: Text('Hello World ☀️'),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+  // Initialize dependency injection
+  await initDependencies();
+
+  // Initialize notification service (mobile only)
+  await NotificationService.instance.initialize();
+
+  runApp(const UntenseApp());
 }
