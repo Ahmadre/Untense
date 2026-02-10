@@ -10,9 +10,6 @@ import 'package:untense/domain/entities/tension_entry.dart';
 import 'package:untense/domain/repositories/tension_repository.dart';
 import 'package:untense/presentation/bloc/settings/settings_bloc.dart';
 import 'package:untense/presentation/bloc/settings/settings_state.dart';
-import 'package:untense/presentation/bloc/tension/tension_bloc.dart';
-import 'package:untense/presentation/bloc/tension/tension_event.dart';
-import 'package:untense/presentation/bloc/tension/tension_state.dart';
 import 'package:untense/presentation/widgets/aggregated_tension_chart.dart';
 import 'package:untense/presentation/widgets/entry_card.dart';
 import 'package:untense/presentation/widgets/tension_chart.dart';
@@ -28,6 +25,11 @@ class HistoryPage extends StatefulWidget {
 class _HistoryPageState extends State<HistoryPage> {
   HistoryViewMode _viewMode = HistoryViewMode.day;
 
+  // Day view — managed locally, independent of TensionBloc
+  late DateTime _selectedDay;
+  List<TensionEntry> _dayEntries = [];
+  bool _isLoadingDay = false;
+
   // For week/month/year navigation
   late DateTime _weekStart; // Monday of the selected week
   late DateTime _monthDate; // Any date in the selected month
@@ -42,9 +44,23 @@ class _HistoryPageState extends State<HistoryPage> {
   void initState() {
     super.initState();
     final now = DateTime.now();
+    _selectedDay = now;
     _weekStart = _mondayOf(now);
     _monthDate = DateTime(now.year, now.month);
     _yearValue = now.year;
+    _loadDayEntries();
+  }
+
+  Future<void> _loadDayEntries() async {
+    setState(() => _isLoadingDay = true);
+    final repo = sl<TensionRepository>();
+    final entries = await repo.getEntriesByDate(_selectedDay);
+    if (mounted) {
+      setState(() {
+        _dayEntries = entries;
+        _isLoadingDay = false;
+      });
+    }
   }
 
   // ====================== Date Helpers ======================
@@ -222,7 +238,9 @@ class _HistoryPageState extends State<HistoryPage> {
   void _onViewModeChanged(HistoryViewMode mode) {
     if (mode == _viewMode) return;
     setState(() => _viewMode = mode);
-    if (mode != HistoryViewMode.day) {
+    if (mode == HistoryViewMode.day) {
+      _loadDayEntries();
+    } else {
       _loadAggregatedData();
     }
   }
@@ -356,24 +374,14 @@ class _HistoryPageState extends State<HistoryPage> {
   // ==================== Day View (existing) ====================
 
   Widget _buildDayView(BuildContext context, ThemeData theme, I18Next? i18n) {
-    return BlocBuilder<TensionBloc, TensionState>(
-      builder: (context, state) {
-        if (state is TensionLoading) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (state is TensionLoaded) {
-          return _buildDayContent(context, state, theme, i18n);
-        }
-        return Center(
-          child: Text(i18n?.t('history.noEntries') ?? 'No entries available.'),
-        );
-      },
-    );
+    if (_isLoadingDay) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    return _buildDayContent(context, theme, i18n);
   }
 
   Widget _buildDayContent(
     BuildContext context,
-    TensionLoaded state,
     ThemeData theme,
     I18Next? i18n,
   ) {
@@ -385,59 +393,75 @@ class _HistoryPageState extends State<HistoryPage> {
         ? settingsState.config.dayEnd
         : const TimeOfDay(hour: 22, minute: 0);
 
+    // Compute stats locally
+    final avg = _dayEntries.isEmpty
+        ? 0.0
+        : _dayEntries.map((e) => e.tensionLevel).reduce((a, b) => a + b) /
+              _dayEntries.length;
+    final max = _dayEntries.isEmpty
+        ? 0.0
+        : _dayEntries
+              .map((e) => e.tensionLevel)
+              .reduce((a, b) => a > b ? a : b);
+    final min = _dayEntries.isEmpty
+        ? 0.0
+        : _dayEntries
+              .map((e) => e.tensionLevel)
+              .reduce((a, b) => a < b ? a : b);
+
     return Column(
       children: [
         // Date navigation
         _buildNavigationRow(
           theme: theme,
-          label: _formatDayLabel(state.selectedDate, i18n),
+          label: _formatDayLabel(_selectedDay, i18n),
           onPrevious: () {
-            final prevDate = state.selectedDate.subtract(
-              const Duration(days: 1),
-            );
-            context.read<TensionBloc>().add(LoadEntriesForDate(prevDate));
+            setState(() {
+              _selectedDay = _selectedDay.subtract(const Duration(days: 1));
+            });
+            _loadDayEntries();
           },
-          onNext: AppDateTimeUtils.isToday(state.selectedDate)
+          onNext: AppDateTimeUtils.isToday(_selectedDay)
               ? null
               : () {
-                  final nextDate = state.selectedDate.add(
-                    const Duration(days: 1),
-                  );
-                  context.read<TensionBloc>().add(LoadEntriesForDate(nextDate));
+                  setState(() {
+                    _selectedDay = _selectedDay.add(const Duration(days: 1));
+                  });
+                  _loadDayEntries();
                 },
-          onTap: () => _selectDate(context, state.selectedDate),
+          onTap: () => _selectDate(context, _selectedDay),
         ),
 
         // Chart
-        if (state.entries.isNotEmpty)
+        if (_dayEntries.isNotEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: TensionChart(
-              entries: state.entries,
+              entries: _dayEntries,
               dayStart: dayStart,
               dayEnd: dayEnd,
             ),
           ),
 
         // Stats
-        if (state.entries.isNotEmpty)
+        if (_dayEntries.isNotEmpty)
           _buildStatsRow(
             theme: theme,
             i18n: i18n,
-            avg: state.averageTension,
-            max: state.maxTension,
-            min: state.minTension,
-            entryCount: state.entries.length,
+            avg: avg,
+            max: max,
+            min: min,
+            entryCount: _dayEntries.length,
           ),
 
         // Entries list
         Expanded(
-          child: state.entries.isEmpty
+          child: _dayEntries.isEmpty
               ? _buildEmptyState(theme, i18n)
               : ListView.builder(
-                  itemCount: state.entries.length,
+                  itemCount: _dayEntries.length,
                   itemBuilder: (context, index) {
-                    final entry = state.entries[index];
+                    final entry = _dayEntries[index];
                     return EntryCard(
                       entry: entry,
                       onTap: () {
@@ -741,8 +765,9 @@ class _HistoryPageState extends State<HistoryPage> {
       firstDate: DateTime(2020),
       lastDate: DateTime.now(),
     );
-    if (picked != null && context.mounted) {
-      context.read<TensionBloc>().add(LoadEntriesForDate(picked));
+    if (picked != null && mounted) {
+      setState(() => _selectedDay = picked);
+      _loadDayEntries();
     }
   }
 }

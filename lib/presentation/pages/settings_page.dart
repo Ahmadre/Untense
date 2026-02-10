@@ -480,13 +480,9 @@ class SettingsPage extends StatelessWidget {
       return;
     }
 
-    // 5. Refresh BLoCs
-    if (result.entriesImported > 0) {
-      context.read<TensionBloc>().add(const LoadTodayEntries());
-    }
-    if (result.settingsImported) {
-      context.read<SettingsBloc>().add(const LoadSettings());
-    }
+    // 5. Refresh BLoCs — always reload both so all pages stay in sync
+    context.read<TensionBloc>().add(const LoadTodayEntries());
+    context.read<SettingsBloc>().add(const LoadSettings());
 
     // 6. Show success
     final parts = <String>[];

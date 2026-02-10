@@ -38,9 +38,9 @@ class _MainShellPageState extends State<MainShellPage> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: currentIndex,
         onDestinationSelected: (index) {
-          // When switching to history tab, reload dates
-          if (index == 1) {
-            context.read<TensionBloc>().add(const LoadDatesWithEntries());
+          // When switching to home tab, always reload today's entries
+          if (index == 0) {
+            context.read<TensionBloc>().add(const LoadTodayEntries());
           }
           widget.navigationShell.goBranch(
             index,
