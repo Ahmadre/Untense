@@ -817,14 +817,22 @@ class _HistoryPageState extends State<HistoryPage> {
           builder: (ctx, setDialogState) {
             final i18n = I18Next.of(context);
             final monthKeys = [
-              'jan', 'feb', 'mar', 'apr', 'may', 'jun',
-              'jul', 'aug', 'sep', 'oct', 'nov', 'dec',
+              'jan',
+              'feb',
+              'mar',
+              'apr',
+              'may',
+              'jun',
+              'jul',
+              'aug',
+              'sep',
+              'oct',
+              'nov',
+              'dec',
             ];
 
             return AlertDialog(
-              title: Text(
-                i18n?.t('history.pickMonth') ?? 'Pick Month',
-              ),
+              title: Text(i18n?.t('history.pickMonth') ?? 'Pick Month'),
               content: SizedBox(
                 width: 300,
                 child: Column(
@@ -836,9 +844,7 @@ class _HistoryPageState extends State<HistoryPage> {
                       children: [
                         IconButton(
                           icon: const Icon(Icons.chevron_left),
-                          onPressed: () => setDialogState(
-                            () => selectedYear--,
-                          ),
+                          onPressed: () => setDialogState(() => selectedYear--),
                         ),
                         Text(
                           '$selectedYear',
@@ -848,9 +854,7 @@ class _HistoryPageState extends State<HistoryPage> {
                         IconButton(
                           icon: const Icon(Icons.chevron_right),
                           onPressed: selectedYear < now.year
-                              ? () => setDialogState(
-                                    () => selectedYear++,
-                                  )
+                              ? () => setDialogState(() => selectedYear++)
                               : null,
                         ),
                       ],
@@ -865,36 +869,33 @@ class _HistoryPageState extends State<HistoryPage> {
                       crossAxisSpacing: 4,
                       children: List.generate(12, (i) {
                         final m = i + 1;
-                        final isFuture = selectedYear == now.year &&
-                            m > now.month;
-                        final isSelected = m == selectedMonth &&
+                        final isFuture =
+                            selectedYear == now.year && m > now.month;
+                        final isSelected =
+                            m == selectedMonth &&
                             selectedYear == _monthDate.year;
-                        final label = i18n?.t(
-                              'history.monthsFull.${monthKeys[i]}',
-                            ) ??
+                        final label =
+                            i18n?.t('history.monthsFull.${monthKeys[i]}') ??
                             monthKeys[i];
 
                         return GestureDetector(
                           onTap: isFuture
                               ? null
-                              : () => setDialogState(
-                                    () => selectedMonth = m,
-                                  ),
+                              : () => setDialogState(() => selectedMonth = m),
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 150),
                             decoration: BoxDecoration(
-                              color: isSelected && selectedYear == _monthDate.year
-                                  ? Theme.of(context)
-                                        .colorScheme
-                                        .primary
+                              color:
+                                  isSelected && selectedYear == _monthDate.year
+                                  ? Theme.of(context).colorScheme.primary
                                         .withValues(alpha: 0.15)
                                   : Colors.transparent,
                               borderRadius: BorderRadius.circular(8),
                               border: selectedMonth == m
                                   ? Border.all(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .primary,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.primary,
                                     )
                                   : null,
                             ),
@@ -907,9 +908,7 @@ class _HistoryPageState extends State<HistoryPage> {
                                     ? FontWeight.w600
                                     : FontWeight.w400,
                                 color: isFuture
-                                    ? Theme.of(context)
-                                          .colorScheme
-                                          .onSurface
+                                    ? Theme.of(context).colorScheme.onSurface
                                           .withValues(alpha: 0.3)
                                     : null,
                               ),
@@ -924,17 +923,13 @@ class _HistoryPageState extends State<HistoryPage> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(ctx).pop(),
-                  child: Text(
-                    i18n?.t('common.cancel') ?? 'Cancel',
-                  ),
+                  child: Text(i18n?.t('common.cancel') ?? 'Cancel'),
                 ),
                 FilledButton(
-                  onPressed: () => Navigator.of(ctx).pop(
-                    DateTime(selectedYear, selectedMonth),
-                  ),
-                  child: Text(
-                    i18n?.t('common.ok') ?? 'OK',
-                  ),
+                  onPressed: () => Navigator.of(
+                    ctx,
+                  ).pop(DateTime(selectedYear, selectedMonth)),
+                  child: Text(i18n?.t('common.ok') ?? 'OK'),
                 ),
               ],
             );

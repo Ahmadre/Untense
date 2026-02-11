@@ -84,7 +84,6 @@ class _MainShellPageState extends State<MainShellPage> {
 
   Widget _buildDesktopLayout(int currentIndex, I18Next? i18n) {
     return Scaffold(
-      appBar: AppBar(title: Text(_getTitle(currentIndex, i18n))),
       body: Row(
         children: [
           NavigationRail(
@@ -145,19 +144,6 @@ class _MainShellPageState extends State<MainShellPage> {
       label: i18n?.t('nav.settings') ?? 'Settings',
     ),
   ];
-
-  String _getTitle(int index, I18Next? i18n) {
-    switch (index) {
-      case 0:
-        return i18n?.t('app.name') ?? 'Untense';
-      case 1:
-        return i18n?.t('history.title') ?? 'History';
-      case 2:
-        return i18n?.t('settings.title') ?? 'Settings';
-      default:
-        return 'Untense';
-    }
-  }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

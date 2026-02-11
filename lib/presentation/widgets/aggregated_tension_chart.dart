@@ -4,6 +4,8 @@ import 'package:i18next/i18next.dart';
 import 'package:untense/core/constants/app_constants.dart';
 import 'package:untense/core/constants/history_view_mode.dart';
 import 'package:untense/core/constants/tension_zones.dart';
+import 'package:untense/presentation/widgets/tension_chart.dart'
+    show responsiveChartHeight;
 
 /// A data point representing the average tension for a time bucket
 /// (a day in week/month view, or a month in year view).
@@ -52,9 +54,11 @@ class AggregatedTensionChart extends StatelessWidget {
 
     final pointsWithData = dataPoints.where((p) => p.entryCount > 0).toList();
 
+    final chartHeight = responsiveChartHeight(context);
+
     if (pointsWithData.isEmpty) {
       return Container(
-        height: 280,
+        height: chartHeight,
         padding: const EdgeInsets.all(16),
         decoration: _boxDecoration(theme),
         child: Center(
@@ -75,7 +79,7 @@ class AggregatedTensionChart extends StatelessWidget {
     final double minimumChartWidth = totalPoints * minPointWidth;
 
     return Container(
-      height: 300,
+      height: chartHeight + 20,
       decoration: _boxDecoration(theme),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
@@ -87,7 +91,7 @@ class AggregatedTensionChart extends StatelessWidget {
 
             final chartChild = SizedBox(
               width: chartWidth,
-              height: 280,
+              height: chartHeight,
               child: Padding(
                 padding: const EdgeInsets.only(
                   right: 16,

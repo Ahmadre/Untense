@@ -6,6 +6,14 @@ import 'package:untense/core/constants/tension_zones.dart';
 import 'package:untense/core/utils/date_time_utils.dart';
 import 'package:untense/domain/entities/tension_entry.dart';
 
+/// Computes a responsive chart height based on screen size.
+/// Mobile (~700 dp height) → 240, Desktop (~1000+ dp) → up to 460.
+double responsiveChartHeight(BuildContext context) {
+  final screenHeight = MediaQuery.sizeOf(context).height;
+  // 35% of screen height, clamped between 220 and 460
+  return (screenHeight * 0.35).clamp(220, 460);
+}
+
 /// Real-time line chart showing tension curve over the day.
 /// Uses fl_chart for rendering.
 class TensionChart extends StatelessWidget {
@@ -24,12 +32,13 @@ class TensionChart extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final chartHeight = responsiveChartHeight(context);
 
     final minX = AppDateTimeUtils.timeOfDayToDouble(dayStart);
     final maxX = AppDateTimeUtils.timeOfDayToDouble(dayEnd);
 
     return Container(
-      height: 280,
+      height: chartHeight,
       padding: const EdgeInsets.only(right: 16, top: 16, bottom: 8),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
