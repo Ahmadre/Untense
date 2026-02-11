@@ -28,8 +28,13 @@ services:
       REGISTRY_AUTH_HTPASSWD_PATH: /auth/htpasswd
       REGISTRY_AUTH_HTPASSWD_REALM: "Private Docker Registry"
       REGISTRY_STORAGE_DELETE_ENABLED: "true"
-      # Garbage collection can reclaim disk space
       REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY: /var/lib/registry
+      # CORS headers for Registry UI
+      REGISTRY_HTTP_HEADERS_Access-Control-Allow-Origin: '["http://192.168.100.2:6001"]'
+      REGISTRY_HTTP_HEADERS_Access-Control-Allow-Methods: '["HEAD","GET","OPTIONS","DELETE"]'
+      REGISTRY_HTTP_HEADERS_Access-Control-Allow-Headers: '["Authorization","Accept","Cache-Control"]'
+      REGISTRY_HTTP_HEADERS_Access-Control-Expose-Headers: '["Docker-Content-Digest"]'
+      REGISTRY_HTTP_HEADERS_Access-Control-Allow-Credentials: '["true"]'
     volumes:
       - /volume1/docker/registry/data:/var/lib/registry
       - /volume1/docker/registry/auth:/auth
@@ -43,7 +48,8 @@ services:
       - "6001:80"
     environment:
       REGISTRY_TITLE: "Untense Registry"
-      REGISTRY_URL: https://registry.asta.hn
+      REGISTRY_URL: http://registry:5000
+      NGINX_PROXY_PASS_URL: http://registry:5000
       SINGLE_REGISTRY: "true"
       DELETE_IMAGES: "true"
     depends_on:
