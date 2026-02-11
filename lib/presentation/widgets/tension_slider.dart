@@ -70,37 +70,42 @@ class TensionSlider extends StatelessWidget {
           ),
         ),
 
-        // Zone labels
+        // Zone labels — positioned to match the track boundaries
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                '0',
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+          padding: const EdgeInsets.symmetric(horizontal: 14), // thumb radius
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final trackWidth = constraints.maxWidth;
+              Widget label(String text, double fraction) {
+                return Positioned(
+                  left: fraction * trackWidth,
+                  child: FractionalTranslation(
+                    translation: const Offset(-0.5, 0),
+                    child: Text(
+                      text,
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: theme.colorScheme.onSurface.withValues(
+                          alpha: 0.5,
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }
+
+              return SizedBox(
+                height: 16,
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    label('0', 0),
+                    label('30', 0.30),
+                    label('70', 0.70),
+                    label('100', 1.0),
+                  ],
                 ),
-              ),
-              Text(
-                '30',
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
-                ),
-              ),
-              Text(
-                '70',
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
-                ),
-              ),
-              Text(
-                '100',
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
-                ),
-              ),
-            ],
+              );
+            },
           ),
         ),
       ],
