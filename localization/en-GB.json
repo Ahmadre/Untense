@@ -139,6 +139,8 @@
     "calendarWeek": "CW {{week}}, {{year}}",
     "monthYear": "{{month}} {{year}}",
     "noDataForPeriod": "No data for this period.",
+    "pickMonth": "Pick Month",
+    "pickYear": "Pick Year",
     "avgPerDay": "Avg. tension per day",
     "avgPerMonth": "Avg. tension per month",
     "weekdays": {

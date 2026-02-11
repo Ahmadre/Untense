@@ -488,6 +488,7 @@ class _HistoryPageState extends State<HistoryPage> {
           label: _formatPeriodLabel(i18n),
           onPrevious: _navigatePrevious,
           onNext: _isNextDisabled() ? null : _navigateNext,
+          onTap: () => _selectPeriod(context),
         ),
 
         // Content
@@ -769,6 +770,211 @@ class _HistoryPageState extends State<HistoryPage> {
     if (picked != null && mounted) {
       setState(() => _selectedDay = picked);
       _loadDayEntries();
+    }
+  }
+
+  /// Routes to the correct picker based on the current view mode.
+  Future<void> _selectPeriod(BuildContext context) async {
+    switch (_viewMode) {
+      case HistoryViewMode.week:
+        await _selectWeek(context);
+        break;
+      case HistoryViewMode.month:
+        await _selectMonth(context);
+        break;
+      case HistoryViewMode.year:
+        await _selectYear(context);
+        break;
+      case HistoryViewMode.day:
+        break;
+    }
+  }
+
+  /// Pick any date → jump to the calendar week containing that date.
+  Future<void> _selectWeek(BuildContext context) async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _weekStart,
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null && mounted) {
+      setState(() => _weekStart = _mondayOf(picked));
+      _loadAggregatedData();
+    }
+  }
+
+  /// Show a dialog to pick a month+year.
+  Future<void> _selectMonth(BuildContext context) async {
+    final now = DateTime.now();
+    int selectedYear = _monthDate.year;
+    int selectedMonth = _monthDate.month;
+
+    final result = await showDialog<DateTime>(
+      context: context,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (ctx, setDialogState) {
+            final i18n = I18Next.of(context);
+            final monthKeys = [
+              'jan', 'feb', 'mar', 'apr', 'may', 'jun',
+              'jul', 'aug', 'sep', 'oct', 'nov', 'dec',
+            ];
+
+            return AlertDialog(
+              title: Text(
+                i18n?.t('history.pickMonth') ?? 'Pick Month',
+              ),
+              content: SizedBox(
+                width: 300,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Year selector row
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.chevron_left),
+                          onPressed: () => setDialogState(
+                            () => selectedYear--,
+                          ),
+                        ),
+                        Text(
+                          '$selectedYear',
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.chevron_right),
+                          onPressed: selectedYear < now.year
+                              ? () => setDialogState(
+                                    () => selectedYear++,
+                                  )
+                              : null,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    // Month grid
+                    GridView.count(
+                      shrinkWrap: true,
+                      crossAxisCount: 3,
+                      childAspectRatio: 2.0,
+                      mainAxisSpacing: 4,
+                      crossAxisSpacing: 4,
+                      children: List.generate(12, (i) {
+                        final m = i + 1;
+                        final isFuture = selectedYear == now.year &&
+                            m > now.month;
+                        final isSelected = m == selectedMonth &&
+                            selectedYear == _monthDate.year;
+                        final label = i18n?.t(
+                              'history.monthsFull.${monthKeys[i]}',
+                            ) ??
+                            monthKeys[i];
+
+                        return GestureDetector(
+                          onTap: isFuture
+                              ? null
+                              : () => setDialogState(
+                                    () => selectedMonth = m,
+                                  ),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 150),
+                            decoration: BoxDecoration(
+                              color: isSelected && selectedYear == _monthDate.year
+                                  ? Theme.of(context)
+                                        .colorScheme
+                                        .primary
+                                        .withValues(alpha: 0.15)
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(8),
+                              border: selectedMonth == m
+                                  ? Border.all(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .primary,
+                                    )
+                                  : null,
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              label,
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: selectedMonth == m
+                                    ? FontWeight.w600
+                                    : FontWeight.w400,
+                                color: isFuture
+                                    ? Theme.of(context)
+                                          .colorScheme
+                                          .onSurface
+                                          .withValues(alpha: 0.3)
+                                    : null,
+                              ),
+                            ),
+                          ),
+                        );
+                      }),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(ctx).pop(),
+                  child: Text(
+                    i18n?.t('common.cancel') ?? 'Cancel',
+                  ),
+                ),
+                FilledButton(
+                  onPressed: () => Navigator.of(ctx).pop(
+                    DateTime(selectedYear, selectedMonth),
+                  ),
+                  child: Text(
+                    i18n?.t('common.ok') ?? 'OK',
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+
+    if (result != null && mounted) {
+      setState(() => _monthDate = result);
+      _loadAggregatedData();
+    }
+  }
+
+  /// Show a dialog to pick a year.
+  Future<void> _selectYear(BuildContext context) async {
+    final now = DateTime.now();
+    final picked = await showDialog<int>(
+      context: context,
+      builder: (ctx) {
+        final i18n = I18Next.of(context);
+        return AlertDialog(
+          title: Text(i18n?.t('history.pickYear') ?? 'Pick Year'),
+          content: SizedBox(
+            width: 300,
+            height: 300,
+            child: YearPicker(
+              firstDate: DateTime(2020),
+              lastDate: DateTime(now.year, 12, 31),
+              selectedDate: DateTime(_yearValue),
+              onChanged: (date) => Navigator.of(ctx).pop(date.year),
+            ),
+          ),
+        );
+      },
+    );
+
+    if (picked != null && mounted) {
+      setState(() => _yearValue = picked);
+      _loadAggregatedData();
     }
   }
 }
