@@ -43,6 +43,7 @@ dependencies:
   go_router: ^14.8.1
   file_picker: ^10.3.10
   share_plus: ^12.0.1
+  flutter_native_splash: ^2.4.7
 
 dev_dependencies:
   flutter_test:
@@ -62,6 +63,18 @@ flutter_launcher_icons:
     image_path: "assets/logo.png"
     background_color: "#0B4C78"
     theme_color: "#0B4C78"
+
+flutter_native_splash:
+  color: "#0B4C78"
+  color_dark: "#0A1A2A"
+  image: "assets/logo.png"
+  android: true
+  ios: true
+  web: true
+  android_12:
+    color: "#0B4C78"
+    color_dark: "#0A1A2A"
+    image: "assets/logo.png"
 
 flutter:
   uses-material-design: true
