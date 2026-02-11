@@ -127,6 +127,8 @@
     "yesterday": "Yesterday",
     "thisWeek": "This Week",
     "thisMonth": "This Month",
+    "entry": "Entry",
+    "entry_plural": "Entries",
     "entries_one": "{{count}} entry",
     "entries_other": "{{count}} entries",
     "averageTension": "Average Tension",

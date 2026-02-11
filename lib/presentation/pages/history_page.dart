@@ -629,56 +629,85 @@ class _HistoryPageState extends State<HistoryPage> {
     required int entryCount,
   }) {
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _buildStat(
-            i18n?.t('history.averageTension') ?? 'Avg',
-            avg.toStringAsFixed(0),
-            theme,
+          Expanded(
+            child: _buildStatCard(
+              label: 'Ø ${i18n?.t('chart.tensionLevel') ?? 'Avg'}',
+              value: avg.toStringAsFixed(0),
+              theme: theme,
+            ),
           ),
-          _buildStat(
-            i18n?.t('history.maxTension') ?? 'Max',
-            max.toStringAsFixed(0),
-            theme,
+          const SizedBox(width: 8),
+          Expanded(
+            child: _buildStatCard(
+              icon: Icons.arrow_upward_rounded,
+              label: 'Max',
+              value: max.toStringAsFixed(0),
+              theme: theme,
+            ),
           ),
-          _buildStat(
-            i18n?.t('history.minTension') ?? 'Min',
-            min.toStringAsFixed(0),
-            theme,
+          const SizedBox(width: 8),
+          Expanded(
+            child: _buildStatCard(
+              icon: Icons.arrow_downward_rounded,
+              label: 'Min',
+              value: min.toStringAsFixed(0),
+              theme: theme,
+            ),
           ),
-          _buildStat(
-            i18n?.t(
-                  'history.entries_other',
-                  variables: {'count': entryCount.toString()},
-                ) ??
-                '$entryCount',
-            entryCount.toString(),
-            theme,
+          const SizedBox(width: 8),
+          Expanded(
+            child: _buildStatCard(
+              label: i18n?.t('history.entry', count: entryCount) ?? 'Entries',
+              value: entryCount.toString(),
+              theme: theme,
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildStat(String label, String value, ThemeData theme) {
-    return Column(
-      children: [
-        Text(
-          value,
-          style: theme.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
+  Widget _buildStatCard({
+    required String label,
+    required String value,
+    required ThemeData theme,
+    IconData? icon,
+  }) {
+    final subtleColor = theme.colorScheme.onSurface.withValues(alpha: 0.5);
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
+      child: Column(
+        children: [
+          Text(
+            value,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
           ),
-        ),
-        Text(
-          label,
-          style: theme.textTheme.labelSmall?.copyWith(
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+          const SizedBox(height: 4),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (icon != null) ...[
+                Icon(icon, size: 12, color: subtleColor),
+                const SizedBox(width: 3),
+              ],
+              Text(
+                label,
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: subtleColor,
+                  fontSize: 11,
+                ),
+              ),
+            ],
           ),
-          textAlign: TextAlign.center,
-        ),
-      ],
+        ],
+      ),
     );
   }
 

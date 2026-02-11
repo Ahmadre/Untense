@@ -175,21 +175,23 @@ class HomePage extends StatelessWidget {
                 child: Row(
                   children: [
                     _StatCard(
-                      label: i18n?.t('history.averageTension') ?? 'Avg',
+                      label: 'Ø ${i18n?.t('chart.tensionLevel') ?? 'Avg'}',
                       value: state.averageTension.toStringAsFixed(0),
                       theme: theme,
                     ),
                     const SizedBox(width: 8),
                     _StatCard(
-                      label: i18n?.t('history.maxTension') ?? 'Max',
+                      icon: Icons.arrow_upward_rounded,
+                      label: 'Max',
                       value: state.maxTension.toStringAsFixed(0),
                       theme: theme,
                     ),
                     const SizedBox(width: 8),
                     _StatCard(
-                      label: i18n?.t('history.minTension') ?? 'Min',
                       value: state.minTension.toStringAsFixed(0),
                       theme: theme,
+                      icon: Icons.arrow_downward_rounded,
+                      label: 'Min',
                     ),
                   ],
                 ),
@@ -266,25 +268,22 @@ class _StatCard extends StatelessWidget {
   final String label;
   final String value;
   final ThemeData theme;
+  final IconData? icon;
 
   const _StatCard({
     required this.label,
     required this.value,
     required this.theme,
+    this.icon,
   });
 
   @override
   Widget build(BuildContext context) {
+    final subtleColor = theme.colorScheme.onSurface.withValues(alpha: 0.6);
     return Expanded(
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-        decoration: BoxDecoration(
-          color: theme.colorScheme.surface,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.08),
-          ),
-        ),
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
         child: Column(
           children: [
             Text(
@@ -294,14 +293,24 @@ class _StatCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 2),
-            Text(
-              label,
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-              ),
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (icon != null) ...[
+                  Icon(icon, size: 12, color: subtleColor),
+                  const SizedBox(width: 3),
+                ],
+                Text(
+                  label,
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: subtleColor,
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ),
           ],
         ),

@@ -127,6 +127,8 @@
     "yesterday": "Gestern",
     "thisWeek": "Diese Woche",
     "thisMonth": "Dieser Monat",
+    "entry": "Eintrag",
+    "entry_plural": "Einträge",
     "entries_one": "{{count}} Eintrag",
     "entries_other": "{{count}} Einträge",
     "averageTension": "Durchschnittliche Anspannung",
