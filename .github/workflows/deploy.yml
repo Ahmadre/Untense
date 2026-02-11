@@ -14,6 +14,15 @@ name: Build & Deploy Untense PWA
 on:
   push:
     branches: [main]
+    paths:
+      - 'lib/**'
+      - 'web/**'
+      - 'assets/**'
+      - 'localization/**'
+      - 'pubspec.yaml'
+      - 'pubspec.lock'
+      - 'Dockerfile'
+      - 'nginx/**'
   workflow_dispatch: # Allow manual trigger
 
 env:
