@@ -5,10 +5,11 @@ import 'package:i18next/i18next.dart';
 import 'package:uuid/uuid.dart';
 import 'package:untense/core/constants/tension_zones.dart';
 import 'package:untense/core/utils/date_time_utils.dart';
+import 'package:untense/di/service_locator.dart';
 import 'package:untense/domain/entities/tension_entry.dart';
+import 'package:untense/domain/repositories/tension_repository.dart';
 import 'package:untense/presentation/bloc/tension/tension_bloc.dart';
 import 'package:untense/presentation/bloc/tension/tension_event.dart';
-import 'package:untense/presentation/bloc/tension/tension_state.dart';
 import 'package:untense/presentation/widgets/tension_slider.dart';
 import 'package:untense/presentation/widgets/zone_indicator.dart';
 
@@ -81,23 +82,22 @@ class _AddEntryPageState extends State<AddEntryPage> {
     }
   }
 
-  void _loadExistingEntry() {
-    final state = context.read<TensionBloc>().state;
-    if (state is TensionLoaded) {
-      try {
-        _existingEntry = state.entries.firstWhere(
-          (e) => e.id == widget.editEntryId,
-        );
-        _tensionLevel = _existingEntry!.tensionLevel;
-        _selectedTime = TimeOfDay.fromDateTime(_existingEntry!.timestamp);
-        _selectedDate = _existingEntry!.date;
-        _situationController.text = _existingEntry!.situation ?? '';
-        _feelingController.text = _existingEntry!.feeling ?? '';
-        _notesController.text = _existingEntry!.notes ?? '';
-        _selectedEmotions.addAll(_existingEntry!.emotions);
-      } catch (_) {
-        // Entry not found in current state
-      }
+  Future<void> _loadExistingEntry() async {
+    final repo = sl<TensionRepository>();
+    final entry = await repo.getEntryById(widget.editEntryId!);
+    if (entry != null && mounted) {
+      setState(() {
+        _existingEntry = entry;
+        _tensionLevel = entry.tensionLevel;
+        _selectedTime = TimeOfDay.fromDateTime(entry.timestamp);
+        _selectedDate = entry.date;
+        _situationController.text = entry.situation ?? '';
+        _feelingController.text = entry.feeling ?? '';
+        _notesController.text = entry.notes ?? '';
+        _selectedEmotions.addAll(entry.emotions);
+        final now = DateTime.now();
+        _isPastEntry = entry.timestamp.isBefore(now);
+      });
     }
   }
 
