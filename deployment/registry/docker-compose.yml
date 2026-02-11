@@ -22,7 +22,7 @@ services:
     container_name: docker-registry
     restart: always
     ports:
-      - "6000:6000"
+      - "6000:5000"
     environment:
       REGISTRY_AUTH: htpasswd
       REGISTRY_AUTH_HTPASSWD_PATH: /auth/htpasswd
