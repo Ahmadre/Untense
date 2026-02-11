@@ -258,6 +258,14 @@ class SettingsPage extends StatelessWidget {
             Card(
               child: Column(
                 children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 16),
+                    child: Image.asset(
+                      'assets/logo.png',
+                      width: 64,
+                      height: 64,
+                    ),
+                  ),
                   ListTile(
                     leading: const Icon(Icons.security),
                     title: Text(

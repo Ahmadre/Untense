@@ -1,11 +1,11 @@
 {
-    "name": "untense",
-    "short_name": "untense",
+    "name": "Untense",
+    "short_name": "Untense",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#0B4C78",
+    "theme_color": "#0B4C78",
+    "description": "Untense - Therapeutic tension tracking diary app.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
