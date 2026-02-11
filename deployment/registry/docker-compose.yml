@@ -1,0 +1,50 @@
+# ============================================================
+#  Private Docker Registry — Synology NAS (Portainer)
+# ============================================================
+#  Deploy this on your Synology NAS via Portainer → Stacks.
+#
+#  Prerequisites:
+#   1. Create the volume directories on your NAS:
+#      mkdir -p /volume1/docker/registry/data
+#      mkdir -p /volume1/docker/registry/auth
+#
+#   2. Generate htpasswd credentials (run once on the NAS):
+#      docker run --rm --entrypoint htpasswd \
+#        httpd:2 -Bbn <USERNAME> <PASSWORD> \
+#        > /volume1/docker/registry/auth/htpasswd
+#
+#   3. Deploy this stack in Portainer.
+# ============================================================
+
+services:
+  registry:
+    image: registry:2
+    container_name: docker-registry
+    restart: always
+    ports:
+      - "6000:6000"
+    environment:
+      REGISTRY_AUTH: htpasswd
+      REGISTRY_AUTH_HTPASSWD_PATH: /auth/htpasswd
+      REGISTRY_AUTH_HTPASSWD_REALM: "Private Docker Registry"
+      REGISTRY_STORAGE_DELETE_ENABLED: "true"
+      # Garbage collection can reclaim disk space
+      REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY: /var/lib/registry
+    volumes:
+      - /volume1/docker/registry/data:/var/lib/registry
+      - /volume1/docker/registry/auth:/auth
+
+  # Optional: Web UI for browsing the registry
+  registry-ui:
+    image: joxit/docker-registry-ui:latest
+    container_name: docker-registry-ui
+    restart: always
+    ports:
+      - "6001:80"
+    environment:
+      REGISTRY_TITLE: "Untense Registry"
+      REGISTRY_URL: https://registry.asta.hn
+      SINGLE_REGISTRY: "true"
+      DELETE_IMAGES: "true"
+    depends_on:
+      - registry

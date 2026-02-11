@@ -1,0 +1,38 @@
+# ============================================================
+#  Untense PWA — Synology NAS (Portainer)
+# ============================================================
+#  Deploy this stack in Portainer → Stacks.
+#
+#  Replace registry.asta.hn with your registry domain if different.
+#  The image is pulled from your private registry.
+#
+#  Watchtower automatically checks for new :latest images
+#  every 5 minutes and restarts the container seamlessly.
+# ============================================================
+
+services:
+  untense:
+    image: registry.asta.hn/untense:latest
+    container_name: untense-pwa
+    restart: always
+    ports:
+      - "8080:80"
+
+  # Auto-updater: pulls new images and restarts containers
+  watchtower:
+    image: containrrr/watchtower
+    container_name: untense-watchtower
+    restart: always
+    environment:
+      WATCHTOWER_CLEANUP: "true"
+      WATCHTOWER_POLL_INTERVAL: "300"          # check every 5 min
+      WATCHTOWER_SCOPE: untense
+      # Private registry credentials
+      WATCHTOWER_HTTP_API_METRICS: "false"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Mount Docker config with registry credentials
+      - /volume1/docker/watchtower/config.json:/config.json
+    command: --scope untense
+    labels:
+      - "com.centurylinklabs.watchtower.scope=untense"

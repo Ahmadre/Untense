@@ -1,0 +1,26 @@
+# Build artifacts
+build/
+.dart_tool/
+.packages
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Deployment docs (not needed in image)
+deployment/
+.github/
+README.md
+
+# Platform-specific (not needed for web build)
+# android/
+# ios/
