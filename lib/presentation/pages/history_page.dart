@@ -339,7 +339,7 @@ class _HistoryPageState extends State<HistoryPage> {
 
   Widget _buildViewModeSwitcher(ThemeData theme, I18Next? i18n) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
       child: SegmentedButton<HistoryViewMode>(
         segments: [
           ButtonSegment(
@@ -409,7 +409,10 @@ class _HistoryPageState extends State<HistoryPage> {
               .map((e) => e.tensionLevel)
               .reduce((a, b) => a < b ? a : b);
 
-    return Column(
+    final bottomInset = MediaQuery.of(context).padding.bottom;
+
+    return ListView(
+      padding: EdgeInsets.only(bottom: bottomInset + 16),
       children: [
         // Date navigation
         _buildNavigationRow(
@@ -454,23 +457,18 @@ class _HistoryPageState extends State<HistoryPage> {
             entryCount: _dayEntries.length,
           ),
 
-        // Entries list
-        Expanded(
-          child: _dayEntries.isEmpty
-              ? _buildEmptyState(theme, i18n)
-              : ListView.builder(
-                  itemCount: _dayEntries.length,
-                  itemBuilder: (context, index) {
-                    final entry = _dayEntries[index];
-                    return EntryCard(
-                      entry: entry,
-                      onTap: () {
-                        context.push(RoutePaths.editEntryPath(entry.id));
-                      },
-                    );
-                  },
-                ),
-        ),
+        // Entries list or empty state
+        if (_dayEntries.isEmpty)
+          _buildEmptyState(theme, i18n)
+        else
+          ..._dayEntries.map(
+            (entry) => EntryCard(
+              entry: entry,
+              onTap: () {
+                context.push(RoutePaths.editEntryPath(entry.id));
+              },
+            ),
+          ),
       ],
     );
   }
@@ -523,7 +521,10 @@ class _HistoryPageState extends State<HistoryPage> {
               .map((e) => e.tensionLevel)
               .reduce((a, b) => a < b ? a : b);
 
+    final bottomInset = MediaQuery.of(context).padding.bottom;
+
     return SingleChildScrollView(
+      padding: EdgeInsets.only(bottom: bottomInset + 16),
       child: Column(
         children: [
           // Chart

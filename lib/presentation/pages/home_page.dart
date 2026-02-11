@@ -60,6 +60,7 @@ class HomePage extends StatelessWidget {
     ThemeData theme,
     I18Next? i18n,
   ) {
+    final bottomInset = MediaQuery.of(context).padding.bottom;
     final settingsState = context.watch<SettingsBloc>().state;
     final dayStart = settingsState is SettingsLoaded
         ? settingsState.config.dayStart
@@ -250,7 +251,7 @@ class HomePage extends StatelessWidget {
             ),
 
           // Bottom padding
-          const SliverToBoxAdapter(child: SizedBox(height: 80)),
+          SliverToBoxAdapter(child: SizedBox(height: bottomInset + 80)),
         ],
       ),
     );

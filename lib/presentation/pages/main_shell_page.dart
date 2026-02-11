@@ -64,7 +64,6 @@ class _MainShellPageState extends State<MainShellPage> {
     return Scaffold(
       // Let the body extend behind the glass bar so content blurs through
       extendBody: true,
-      appBar: AppBar(title: Text(_getTitle(currentIndex, i18n))),
       body: widget.navigationShell,
       bottomNavigationBar: _GlassBottomNavBar(
         currentIndex: currentIndex,

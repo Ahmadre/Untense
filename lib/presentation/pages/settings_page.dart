@@ -19,6 +19,7 @@ class SettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final i18n = I18Next.of(context);
+    final bottomInset = MediaQuery.of(context).padding.bottom;
 
     return BlocBuilder<SettingsBloc, SettingsState>(
       builder: (context, state) {
@@ -274,7 +275,7 @@ class SettingsPage extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 32),
+            SizedBox(height: bottomInset + 16),
           ],
         );
       },
