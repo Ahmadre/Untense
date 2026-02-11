@@ -11,6 +11,7 @@ import 'package:untense/presentation/bloc/tension/tension_event.dart';
 import 'package:untense/presentation/bloc/tension/tension_state.dart';
 import 'package:untense/presentation/widgets/entry_card.dart';
 import 'package:untense/presentation/widgets/tension_chart.dart';
+import 'package:untense/presentation/widgets/untense_logo_widget.dart';
 import 'package:untense/presentation/widgets/zone_indicator.dart';
 
 /// Home page showing today's tension entries and chart
@@ -103,7 +104,7 @@ class HomePage extends StatelessWidget {
                       ],
                     ),
                   ),
-                  Image.asset('assets/logo.png', width: 48, height: 48),
+                  const UntenseLogoWidget(size: 48, borderRadius: 12),
                 ],
               ),
             ),

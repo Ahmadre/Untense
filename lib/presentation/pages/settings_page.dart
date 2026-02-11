@@ -10,6 +10,7 @@ import 'package:untense/presentation/bloc/settings/settings_event.dart';
 import 'package:untense/presentation/bloc/settings/settings_state.dart';
 import 'package:untense/presentation/bloc/tension/tension_bloc.dart';
 import 'package:untense/presentation/bloc/tension/tension_event.dart';
+import 'package:untense/presentation/widgets/untense_logo_widget.dart';
 
 /// Settings page for customizing the app
 class SettingsPage extends StatelessWidget {
@@ -258,14 +259,7 @@ class SettingsPage extends StatelessWidget {
             Card(
               child: Column(
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 16),
-                    child: Image.asset(
-                      'assets/logo.png',
-                      width: 64,
-                      height: 64,
-                    ),
-                  ),
+                  const UntenseLogoWidget(margin: EdgeInsets.only(top: 16)),
                   ListTile(
                     leading: const Icon(Icons.security),
                     title: Text(
