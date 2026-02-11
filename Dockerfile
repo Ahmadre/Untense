@@ -1,11 +1,11 @@
 # ── Stage 1: Build Flutter Web ────────────────────────────────────────
-FROM ghcr.io/cirruslabs/flutter:3.32.2 AS build
+FROM ghcr.io/cirruslabs/flutter:3.38.9 AS build
 
 WORKDIR /app
 COPY . .
 
 RUN flutter pub get
-RUN flutter build web --release --web-renderer html --base-href "/"
+RUN flutter build web --release --base-href "/"
 
 # ── Stage 2: Serve with nginx ────────────────────────────────────────
 FROM nginx:alpine
