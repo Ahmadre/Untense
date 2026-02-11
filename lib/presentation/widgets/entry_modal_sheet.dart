@@ -354,6 +354,11 @@ class _EntryFormContentState extends State<_EntryFormContent> {
                     controller: _situationController,
                     maxLines: 3,
                     decoration: InputDecoration(
+                      hintStyle: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurface.withValues(
+                          alpha: 0.6,
+                        ),
+                      ),
                       hintText:
                           i18n?.t('entry.whatHappenedHint') ??
                           'Describe the situation...',
@@ -381,6 +386,11 @@ class _EntryFormContentState extends State<_EntryFormContent> {
                     controller: _feelingController,
                     maxLines: 3,
                     decoration: InputDecoration(
+                      hintStyle: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurface.withValues(
+                          alpha: 0.6,
+                        ),
+                      ),
                       hintText:
                           i18n?.t('entry.howDoYouFeelHint') ??
                           'Describe your feelings...',
@@ -459,6 +469,11 @@ class _EntryFormContentState extends State<_EntryFormContent> {
                     controller: _notesController,
                     maxLines: 3,
                     decoration: InputDecoration(
+                      hintStyle: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurface.withValues(
+                          alpha: 0.6,
+                        ),
+                      ),
                       hintText:
                           i18n?.t('entry.notesHint') ?? 'Further thoughts...',
                     ),
