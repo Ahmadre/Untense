@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:i18next/i18next.dart';
 import 'package:untense/core/constants/history_view_mode.dart';
-import 'package:untense/core/routing/route_paths.dart';
+import 'package:untense/presentation/widgets/entry_modal_sheet.dart';
 import 'package:untense/core/utils/date_time_utils.dart';
 import 'package:untense/di/service_locator.dart';
 import 'package:untense/domain/entities/tension_entry.dart';
@@ -465,7 +464,7 @@ class _HistoryPageState extends State<HistoryPage> {
             (entry) => EntryCard(
               entry: entry,
               onTap: () {
-                context.push(RoutePaths.editEntryPath(entry.id));
+                EntryModalSheet.showEdit(context, entryId: entry.id);
               },
             ),
           ),

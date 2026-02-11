@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:i18next/i18next.dart';
-import 'package:untense/core/routing/route_paths.dart';
+import 'package:untense/presentation/widgets/entry_modal_sheet.dart';
 import 'package:untense/presentation/bloc/tension/tension_bloc.dart';
 import 'package:untense/presentation/bloc/tension/tension_event.dart';
 
@@ -72,7 +72,7 @@ class _MainShellPageState extends State<MainShellPage> {
       ),
       floatingActionButton: currentIndex == 0
           ? FloatingActionButton.extended(
-              onPressed: () => context.push(RoutePaths.addEntry),
+              onPressed: () => EntryModalSheet.showAdd(context),
               icon: const Icon(Icons.add),
               label: Text(i18n?.t('home.addEntry') ?? 'Add Entry'),
             )
@@ -94,7 +94,7 @@ class _MainShellPageState extends State<MainShellPage> {
                 ? Padding(
                     padding: const EdgeInsets.only(bottom: 8),
                     child: FloatingActionButton(
-                      onPressed: () => context.push(RoutePaths.addEntry),
+                      onPressed: () => EntryModalSheet.showAdd(context),
                       child: const Icon(Icons.add),
                     ),
                   )

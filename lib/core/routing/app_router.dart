@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:untense/core/routing/route_paths.dart';
-import 'package:untense/presentation/pages/add_entry_page.dart';
 import 'package:untense/presentation/pages/history_page.dart';
 import 'package:untense/presentation/pages/home_page.dart';
 import 'package:untense/presentation/pages/main_shell_page.dart';
@@ -75,27 +74,6 @@ class AppRouter {
             ],
           ),
         ],
-      ),
-
-      // ===== Full-Screen Routes (pushed over shell) =====
-      GoRoute(
-        path: RoutePaths.addEntry,
-        name: 'addEntry',
-        parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) {
-          // Optional: pre-set timestamp passed via extra
-          final presetTimestamp = state.extra as DateTime?;
-          return AddEntryPage(presetTimestamp: presetTimestamp);
-        },
-      ),
-      GoRoute(
-        path: RoutePaths.editEntry,
-        name: 'editEntry',
-        parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) {
-          final entryId = state.pathParameters['entryId']!;
-          return AddEntryPage(editEntryId: entryId);
-        },
       ),
     ],
   );

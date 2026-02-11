@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:i18next/i18next.dart';
-import 'package:untense/core/routing/route_paths.dart';
+import 'package:untense/presentation/widgets/entry_modal_sheet.dart';
 import 'package:untense/core/utils/date_time_utils.dart';
 import 'package:untense/presentation/bloc/settings/settings_bloc.dart';
 import 'package:untense/presentation/bloc/settings/settings_state.dart';
@@ -270,7 +269,7 @@ class HomePage extends StatelessWidget {
   }
 
   void _navigateToEditEntry(BuildContext context, String entryId) {
-    context.push(RoutePaths.editEntryPath(entryId));
+    EntryModalSheet.showEdit(context, entryId: entryId);
   }
 }
 
