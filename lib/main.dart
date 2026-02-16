@@ -16,7 +16,7 @@ void main() async {
   // Initialize dependency injection
   await initDependencies();
 
-  // Initialize notification service (mobile only)
+  // Initialize notification service (mobile + web)
   await NotificationService.instance.initialize();
 
   // Remove native splash — app is ready
