@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:i18next/i18next.dart';
 import 'package:intl/intl.dart';
+import 'package:package_info_plus/package_info_plus.dart' show PackageInfo;
 import 'package:untense/core/constants/app_constants.dart';
 import 'package:untense/core/services/data_export_service.dart';
 import 'package:untense/core/utils/date_time_utils.dart';
@@ -281,12 +282,19 @@ class SettingsPage extends StatelessWidget {
                       i18n?.t('settings.privacyNote') ??
                           'All data is stored locally on your device.',
                     ),
-                    subtitle: Text(
-                      i18n?.t(
-                            'settings.version',
-                            variables: {'version': '0.1.0'},
-                          ) ??
-                          'Version 0.1.0',
+                    subtitle: FutureBuilder<PackageInfo>(
+                      future: PackageInfo.fromPlatform(),
+                      builder: (context, snapshot) {
+                        return Text(
+                          i18n?.t(
+                                'settings.version',
+                                variables: {
+                                  'version': snapshot.data?.version ?? '1.0.0',
+                                },
+                              ) ??
+                              'Version ${snapshot.data?.version ?? '1.0.0'}',
+                        );
+                      },
                     ),
                   ),
                 ],

@@ -254,33 +254,12 @@ docker run -p 8080:80 untense
 # deployment/app/docker-compose.yml
 services:
   untense:
-    image: registry.asta.hn/untense:latest
+    image: <private-registry>/untense:latest
     container_name: untense-pwa
     restart: always
     ports:
       - "8080:80"
 ```
-
-### GitHub Actions CI/CD
-
-The pipeline (`.github/workflows/deploy.yml`) triggers on push to `main` when relevant files change:
-
-| Trigger Paths | Purpose |
-|---------------|---------|
-| `lib/**`, `web/**`, `assets/**` | App source changes |
-| `localization/**` | Translation updates |
-| `pubspec.yaml`, `pubspec.lock` | Dependency changes |
-| `Dockerfile`, `nginx/**` | Infrastructure changes |
-
-**Required Secrets:**
-
-| Secret | Description |
-|--------|-------------|
-| `REGISTRY_URL` | Private Docker registry URL |
-| `REGISTRY_USERNAME` | Registry auth username |
-| `REGISTRY_PASSWORD` | Registry auth password |
-
----
 
 ## 🛠 Tech Stack
 
@@ -345,9 +324,6 @@ lib/
         ├── entry_modal_sheet.dart     # WoltModalSheet add/edit
         ├── zone_indicator.dart        # Zone name + description
         └── untense_logo_widget.dart   # Reusable logo
-
-deployment/
-├── app/docker-compose.yml             # Production compose for PWA
 
 nginx/
 └── default.conf                       # SPA routing + cache headers
