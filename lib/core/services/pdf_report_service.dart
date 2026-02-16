@@ -92,9 +92,9 @@ class PdfReportService {
         'noEntries': 'Keine Einträge im gewählten Zeitraum.',
         'page': 'Seite',
         'of': 'von',
-        'confidential': 'Vertraulich – Nur für therapeutische Zwecke',
+        'confidential': 'Vertraulich - Nur f\u00fcr therapeutische Zwecke',
         'disclaimer':
-            'Dieser Bericht wurde automatisch aus dem Anspannungstagebuch „Untense" generiert und ersetzt keine fachliche Beurteilung.',
+            'Dieser Bericht wurde automatisch aus dem Anspannungstagebuch "Untense" generiert und ersetzt keine fachliche Beurteilung.',
         // emotion labels
         'anger': 'Wut',
         'fear': 'Angst',
@@ -157,7 +157,7 @@ class PdfReportService {
       'noEntries': 'No entries in the selected period.',
       'page': 'Page',
       'of': 'of',
-      'confidential': 'Confidential – For therapeutic use only',
+      'confidential': 'Confidential - For therapeutic use only',
       'disclaimer':
           'This report was automatically generated from the "Untense" tension diary and does not replace professional assessment.',
       // emotion labels
@@ -206,7 +206,7 @@ class PdfReportService {
     final pdf = pw.Document(
       author: 'Untense',
       title: s['title']!,
-      creator: 'Untense – Therapeutic Tension Diary',
+      creator: 'Untense - Therapeutic Tension Diary',
     );
 
     // ── pre-compute statistics ──
@@ -345,7 +345,7 @@ class PdfReportService {
                 _zoneRow(
                   color: _green,
                   name: s['mindfulness']!,
-                  range: '0 – 30',
+                  range: '0 - 30',
                   count: zMind,
                   total: totalEntries,
                   avgSum: sumMind,
@@ -353,7 +353,7 @@ class PdfReportService {
                 _zoneRow(
                   color: _orange,
                   name: s['emotionRegulation']!,
-                  range: '30 – 70',
+                  range: '30 - 70',
                   count: zEmo,
                   total: totalEntries,
                   avgSum: sumEmo,
@@ -361,7 +361,7 @@ class PdfReportService {
                 _zoneRow(
                   color: _red,
                   name: s['stressTolerance']!,
-                  range: '70 – 100',
+                  range: '70 - 100',
                   count: zStress,
                   total: totalEntries,
                   avgSum: sumStress,
@@ -724,7 +724,7 @@ class PdfReportService {
               style: const pw.TextStyle(fontSize: 10, color: _grey),
             ),
             pw.Text(
-              '${s['period']}: ${dateFmt.format(options.from)} – ${dateFmt.format(options.to)}',
+              '${s['period']}: ${dateFmt.format(options.from)} - ${dateFmt.format(options.to)}',
               style: const pw.TextStyle(fontSize: 10, color: _grey),
             ),
           ],
@@ -745,7 +745,7 @@ class PdfReportService {
       mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
       children: [
         pw.Text(
-          'Untense – Therapeutic Tension Diary',
+          'Untense - Therapeutic Tension Diary',
           style: const pw.TextStyle(fontSize: 7, color: _grey),
         ),
         pw.Text(
