@@ -808,12 +808,15 @@ class PdfReportService {
       children: [
         pw.Padding(
           padding: const pw.EdgeInsets.all(4),
-          child: pw.Container(
-            width: 10,
-            height: 10,
-            decoration: pw.BoxDecoration(
-              color: color,
-              shape: pw.BoxShape.circle,
+          child: pw.AspectRatio(
+            aspectRatio: 1,
+            child: pw.Container(
+              width: 10,
+              height: 10,
+              decoration: pw.BoxDecoration(
+                color: color,
+                shape: pw.BoxShape.circle,
+              ),
             ),
           ),
         ),
