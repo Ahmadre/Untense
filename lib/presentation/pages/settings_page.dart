@@ -10,6 +10,7 @@ import 'package:untense/presentation/bloc/settings/settings_event.dart';
 import 'package:untense/presentation/bloc/settings/settings_state.dart';
 import 'package:untense/presentation/bloc/tension/tension_bloc.dart';
 import 'package:untense/presentation/bloc/tension/tension_event.dart';
+import 'package:untense/presentation/widgets/pdf_report_dialog.dart';
 import 'package:untense/presentation/widgets/untense_logo_widget.dart';
 
 /// Settings page for customizing the app
@@ -219,6 +220,20 @@ class SettingsPage extends StatelessWidget {
             Card(
               child: Column(
                 children: [
+                  ListTile(
+                    leading: const Icon(Icons.picture_as_pdf),
+                    title: Text(
+                      i18n?.t('settings.pdfReport') ??
+                          'Therapeutic Report (PDF)',
+                    ),
+                    subtitle: Text(
+                      i18n?.t('settings.pdfReportHint') ??
+                          'Generate a report for therapists',
+                      style: theme.textTheme.bodySmall,
+                    ),
+                    onTap: () => PdfReportDialog.show(context),
+                  ),
+                  const Divider(height: 1),
                   ListTile(
                     leading: const Icon(Icons.upload_file),
                     title: Text(

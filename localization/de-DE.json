@@ -112,6 +112,8 @@
     "importWarning": "Vorhandene Einträge mit gleicher ID werden überschrieben.",
     "importResultEntries": "{{count}} Einträge importiert.",
     "importResultSettings": "Einstellungen importiert.",
+    "pdfReport": "Therapeutischer Bericht (PDF)",
+    "pdfReportHint": "Bericht für Therapeut*innen erstellen",
     "deleteAllData": "Alle Daten löschen",
     "deleteAllConfirm": "Möchtest du wirklich alle Daten löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
     "deleteAllConfirmTitle": "Alle Daten löschen",
@@ -217,6 +219,18 @@
     "loading": "Laden...",
     "retry": "Erneut versuchen",
     "close": "Schließen"
+  },
+  "report": {
+    "title": "Therapeutischer Bericht",
+    "anonymous": "Anonymer Bericht",
+    "anonymousHint": "Kein Patientenname im Bericht",
+    "patientName": "Name der Patient*in",
+    "period": "Berichtszeitraum",
+    "generate": "PDF erstellen",
+    "last7days": "Letzte 7 Tage",
+    "last14days": "Letzte 14 Tage",
+    "last30days": "Letzte 30 Tage",
+    "last90days": "Letzte 90 Tage"
   },
   "validation": {
     "required": "Dieses Feld ist erforderlich.",

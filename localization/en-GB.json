@@ -112,6 +112,8 @@
     "importWarning": "Existing entries with the same ID will be overwritten.",
     "importResultEntries": "{{count}} entries imported.",
     "importResultSettings": "Settings imported.",
+    "pdfReport": "Therapeutic Report (PDF)",
+    "pdfReportHint": "Generate a report for therapists",
     "deleteAllData": "Delete All Data",
     "deleteAllConfirm": "Do you really want to delete all data? This action cannot be undone.",
     "deleteAllConfirmTitle": "Delete All Data",
@@ -217,6 +219,18 @@
     "loading": "Loading...",
     "retry": "Retry",
     "close": "Close"
+  },
+  "report": {
+    "title": "Therapeutic Report",
+    "anonymous": "Anonymous Report",
+    "anonymousHint": "No patient name on the report",
+    "patientName": "Patient Name",
+    "period": "Reporting Period",
+    "generate": "Generate PDF",
+    "last7days": "Last 7 days",
+    "last14days": "Last 14 days",
+    "last30days": "Last 30 days",
+    "last90days": "Last 90 days"
   },
   "validation": {
     "required": "This field is required.",
