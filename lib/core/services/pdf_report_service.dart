@@ -544,6 +544,12 @@ class PdfReportService {
               ),
             );
 
+            // ── Daily tension curve chart ──
+            if (dayEntries.length >= 2) {
+              widgets.add(_buildDailyCurve(dayEntries, timeFmt));
+              widgets.add(pw.SizedBox(height: 6));
+            }
+
             widgets.add(
               pw.Table(
                 border: pw.TableBorder.all(color: PdfColors.grey300),
@@ -868,5 +874,217 @@ class PdfReportService {
         ),
       ),
     );
+  }
+
+  // ── Daily tension curve ──
+
+  /// Builds a small line chart showing the tension curve for a single day.
+  static pw.Widget _buildDailyCurve(
+    List<TensionEntry> entries,
+    DateFormat timeFmt,
+  ) {
+    // Sort chronologically
+    final sorted = List<TensionEntry>.from(entries)
+      ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
+
+    const double chartHeight = 140;
+    const double leftPad = 28; // space for Y-axis labels
+    const double bottomPad = 20; // space for X-axis labels
+    const double topPad = 8;
+    const double rightPad = 12;
+
+    return pw.Container(
+      decoration: pw.BoxDecoration(
+        border: pw.Border.all(color: PdfColors.grey300),
+        borderRadius: const pw.BorderRadius.all(pw.Radius.circular(4)),
+      ),
+      padding: const pw.EdgeInsets.all(6),
+      child: pw.CustomPaint(
+        size: PdfPoint(double.infinity, chartHeight + bottomPad + topPad),
+        painter: (PdfGraphics canvas, PdfPoint size) {
+          final plotW = size.x - leftPad - rightPad;
+          final plotH = chartHeight;
+          final plotLeft = leftPad;
+          final plotBottom = bottomPad;
+
+          // ── zone background bands (subtle, like in the app) ──
+          _drawZoneBand(
+            canvas,
+            plotLeft,
+            plotBottom,
+            plotW,
+            plotH,
+            0,
+            30,
+            const PdfColor(0.298, 0.686, 0.314, 0.08),
+          ); // green
+          _drawZoneBand(
+            canvas,
+            plotLeft,
+            plotBottom,
+            plotW,
+            plotH,
+            30,
+            70,
+            const PdfColor(1.0, 0.655, 0.149, 0.08),
+          ); // orange
+          _drawZoneBand(
+            canvas,
+            plotLeft,
+            plotBottom,
+            plotW,
+            plotH,
+            70,
+            100,
+            const PdfColor(0.937, 0.325, 0.314, 0.08),
+          ); // red
+
+          // ── zone threshold lines (dashed) ──
+          for (final threshold in [30.0, 70.0]) {
+            final y = plotBottom + (threshold / 100.0) * plotH;
+            canvas
+              ..setColor(PdfColors.grey400)
+              ..setLineWidth(0.5);
+            const dash = 4.0;
+            const gap = 3.0;
+            var x = plotLeft;
+            while (x < plotLeft + plotW) {
+              final end = (x + dash) > (plotLeft + plotW)
+                  ? plotLeft + plotW
+                  : x + dash;
+              canvas.drawLine(x, y, end, y);
+              canvas.strokePath();
+              x += dash + gap;
+            }
+          }
+
+          // ── Y axis labels (0, 30, 70, 100) ──
+          final font = canvas.defaultFont!;
+          for (final val in [0, 30, 70, 100]) {
+            final y = plotBottom + (val / 100.0) * plotH;
+            canvas
+              ..setColor(PdfColors.grey600)
+              ..drawString(font, 7, '$val', plotLeft - 20, y - 3);
+          }
+
+          // ── compute X positions ──
+          final firstTime = sorted.first.timestamp;
+          final lastTime = sorted.last.timestamp;
+          final totalDuration = lastTime
+              .difference(firstTime)
+              .inSeconds
+              .toDouble();
+
+          List<double> xPositions;
+          if (totalDuration <= 0) {
+            // All entries at the same time – spread evenly
+            xPositions = List.generate(
+              sorted.length,
+              (i) =>
+                  plotLeft +
+                  (sorted.length > 1
+                      ? i / (sorted.length - 1) * plotW
+                      : plotW / 2),
+            );
+          } else {
+            xPositions = sorted
+                .map(
+                  (e) =>
+                      plotLeft +
+                      (e.timestamp.difference(firstTime).inSeconds /
+                              totalDuration) *
+                          plotW,
+                )
+                .toList();
+          }
+
+          // ── draw line segments in primary blue ──
+          for (int i = 0; i < sorted.length - 1; i++) {
+            final x1 = xPositions[i];
+            final y1 = plotBottom + (sorted[i].tensionLevel / 100.0) * plotH;
+            final x2 = xPositions[i + 1];
+            final y2 =
+                plotBottom + (sorted[i + 1].tensionLevel / 100.0) * plotH;
+            canvas
+              ..setColor(_primaryColor)
+              ..setLineWidth(2.0)
+              ..drawLine(x1, y1, x2, y2)
+              ..strokePath();
+          }
+
+          // ── draw dots (white border + zone-coloured fill) ──
+          for (int i = 0; i < sorted.length; i++) {
+            final x = xPositions[i];
+            final y = plotBottom + (sorted[i].tensionLevel / 100.0) * plotH;
+            // White outer ring
+            canvas
+              ..setColor(PdfColors.white)
+              ..drawEllipse(x, y, 5, 5)
+              ..fillPath();
+            // Zone-coloured fill
+            canvas
+              ..setColor(_zonePdfColor(sorted[i].tensionLevel))
+              ..drawEllipse(x, y, 3.5, 3.5)
+              ..fillPath();
+          }
+
+          // ── X axis labels ──
+          // Show a subset of time labels so they don't overlap
+          final maxLabels = (plotW / 45).floor().clamp(2, sorted.length);
+          final step = sorted.length <= maxLabels
+              ? 1
+              : (sorted.length / maxLabels).ceil();
+          for (int i = 0; i < sorted.length; i += step) {
+            canvas
+              ..setColor(PdfColors.grey600)
+              ..drawString(
+                font,
+                6,
+                timeFmt.format(sorted[i].timestamp),
+                xPositions[i] - 10,
+                plotBottom - 12,
+              );
+          }
+          // Always show last label if not already shown
+          if ((sorted.length - 1) % step != 0) {
+            canvas
+              ..setColor(PdfColors.grey600)
+              ..drawString(
+                font,
+                6,
+                timeFmt.format(sorted.last.timestamp),
+                xPositions.last - 10,
+                plotBottom - 12,
+              );
+          }
+        },
+      ),
+    );
+  }
+
+  /// Draws a coloured horizontal band for a tension zone.
+  static void _drawZoneBand(
+    PdfGraphics canvas,
+    double plotLeft,
+    double plotBottom,
+    double plotW,
+    double plotH,
+    double minVal,
+    double maxVal,
+    PdfColor color,
+  ) {
+    final yMin = plotBottom + (minVal / 100.0) * plotH;
+    final yMax = plotBottom + (maxVal / 100.0) * plotH;
+    canvas
+      ..setColor(color)
+      ..drawRect(plotLeft, yMin, plotW, yMax - yMin)
+      ..fillPath();
+  }
+
+  /// Returns the PDF colour matching the zone for a given tension value.
+  static PdfColor _zonePdfColor(double value) {
+    if (value < 30) return _green;
+    if (value < 70) return _orange;
+    return _red;
   }
 }
