@@ -33,11 +33,16 @@ class TensionLoaded extends TensionState {
   /// All dates that have entries (for history navigation)
   final List<DateTime> datesWithEntries;
 
+  /// Monotonically increasing counter that changes on every mutation,
+  /// ensuring Equatable always sees a new state after add/update/delete.
+  final int revision;
+
   const TensionLoaded({
     required this.entries,
     required this.selectedDate,
     this.isChartVisible = true,
     this.datesWithEntries = const [],
+    this.revision = 0,
   });
 
   TensionLoaded copyWith({
@@ -45,12 +50,14 @@ class TensionLoaded extends TensionState {
     DateTime? selectedDate,
     bool? isChartVisible,
     List<DateTime>? datesWithEntries,
+    int? revision,
   }) {
     return TensionLoaded(
       entries: entries ?? this.entries,
       selectedDate: selectedDate ?? this.selectedDate,
       isChartVisible: isChartVisible ?? this.isChartVisible,
       datesWithEntries: datesWithEntries ?? this.datesWithEntries,
+      revision: revision ?? this.revision,
     );
   }
 
@@ -79,6 +86,7 @@ class TensionLoaded extends TensionState {
     selectedDate,
     isChartVisible,
     datesWithEntries,
+    revision,
   ];
 }
 

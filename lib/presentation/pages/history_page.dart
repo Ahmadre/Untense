@@ -9,6 +9,8 @@ import 'package:untense/domain/entities/tension_entry.dart';
 import 'package:untense/domain/repositories/tension_repository.dart';
 import 'package:untense/presentation/bloc/settings/settings_bloc.dart';
 import 'package:untense/presentation/bloc/settings/settings_state.dart';
+import 'package:untense/presentation/bloc/tension/tension_bloc.dart';
+import 'package:untense/presentation/bloc/tension/tension_state.dart';
 import 'package:untense/presentation/widgets/aggregated_tension_chart.dart';
 import 'package:untense/presentation/widgets/entry_card.dart';
 import 'package:untense/presentation/widgets/tension_chart.dart';
@@ -321,18 +323,29 @@ class _HistoryPageState extends State<HistoryPage> {
     final theme = Theme.of(context);
     final i18n = I18Next.of(context);
 
-    return Column(
-      children: [
-        // View mode switcher
-        _buildViewModeSwitcher(theme, i18n),
+    return BlocListener<TensionBloc, TensionState>(
+      listener: (context, state) {
+        if (state is TensionLoaded) {
+          if (_viewMode == HistoryViewMode.day) {
+            _loadDayEntries();
+          } else {
+            _loadAggregatedData();
+          }
+        }
+      },
+      child: Column(
+        children: [
+          // View mode switcher
+          _buildViewModeSwitcher(theme, i18n),
 
-        // Content based on mode
-        Expanded(
-          child: _viewMode == HistoryViewMode.day
-              ? _buildDayView(context, theme, i18n)
-              : _buildAggregatedView(context, theme, i18n),
-        ),
-      ],
+          // Content based on mode
+          Expanded(
+            child: _viewMode == HistoryViewMode.day
+                ? _buildDayView(context, theme, i18n)
+                : _buildAggregatedView(context, theme, i18n),
+          ),
+        ],
+      ),
     );
   }
 
@@ -463,8 +476,9 @@ class _HistoryPageState extends State<HistoryPage> {
           ..._dayEntries.map(
             (entry) => EntryCard(
               entry: entry,
-              onTap: () {
-                EntryModalSheet.showEdit(context, entryId: entry.id);
+              onTap: () async {
+                await EntryModalSheet.showEdit(context, entryId: entry.id);
+                _loadDayEntries();
               },
             ),
           ),

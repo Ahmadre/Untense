@@ -75,12 +75,30 @@ class TensionBloc extends Bloc<TensionEvent, TensionState> {
       await _tensionRepository.addEntry(event.entry);
       if (state is TensionLoaded) {
         final currentState = state as TensionLoaded;
-        // Reload entries for the entry's date
         final entries = await _tensionRepository.getEntriesByDate(
           currentState.selectedDate,
         );
         final dates = await _tensionRepository.getDatesWithEntries();
-        emit(currentState.copyWith(entries: entries, datesWithEntries: dates));
+        emit(
+          currentState.copyWith(
+            entries: entries,
+            datesWithEntries: dates,
+            revision: currentState.revision + 1,
+          ),
+        );
+      } else {
+        // BLoC wasn't loaded yet – bootstrap with today's data
+        final today = DateTime.now();
+        final entries = await _tensionRepository.getEntriesByDate(today);
+        final dates = await _tensionRepository.getDatesWithEntries();
+        emit(
+          TensionLoaded(
+            entries: entries,
+            selectedDate: today,
+            datesWithEntries: dates,
+            revision: 1,
+          ),
+        );
       }
     } catch (e) {
       emit(TensionError(e.toString()));
@@ -98,7 +116,24 @@ class TensionBloc extends Bloc<TensionEvent, TensionState> {
         final entries = await _tensionRepository.getEntriesByDate(
           currentState.selectedDate,
         );
-        emit(currentState.copyWith(entries: entries));
+        emit(
+          currentState.copyWith(
+            entries: entries,
+            revision: currentState.revision + 1,
+          ),
+        );
+      } else {
+        final today = DateTime.now();
+        final entries = await _tensionRepository.getEntriesByDate(today);
+        final dates = await _tensionRepository.getDatesWithEntries();
+        emit(
+          TensionLoaded(
+            entries: entries,
+            selectedDate: today,
+            datesWithEntries: dates,
+            revision: 1,
+          ),
+        );
       }
     } catch (e) {
       emit(TensionError(e.toString()));
@@ -117,7 +152,13 @@ class TensionBloc extends Bloc<TensionEvent, TensionState> {
           currentState.selectedDate,
         );
         final dates = await _tensionRepository.getDatesWithEntries();
-        emit(currentState.copyWith(entries: entries, datesWithEntries: dates));
+        emit(
+          currentState.copyWith(
+            entries: entries,
+            datesWithEntries: dates,
+            revision: currentState.revision + 1,
+          ),
+        );
       }
     } catch (e) {
       emit(TensionError(e.toString()));
@@ -142,7 +183,13 @@ class TensionBloc extends Bloc<TensionEvent, TensionState> {
       await _tensionRepository.deleteAllEntries();
       if (state is TensionLoaded) {
         final currentState = state as TensionLoaded;
-        emit(currentState.copyWith(entries: [], datesWithEntries: []));
+        emit(
+          currentState.copyWith(
+            entries: [],
+            datesWithEntries: [],
+            revision: currentState.revision + 1,
+          ),
+        );
       }
     } catch (e) {
       emit(TensionError(e.toString()));
