@@ -70,7 +70,7 @@ class _MainShellPageState extends State<MainShellPage> {
         onTap: _onDestinationSelected,
         items: _navItems(i18n),
       ),
-      floatingActionButton: currentIndex == 0
+      floatingActionButton: currentIndex == 0 || currentIndex == 1
           ? FloatingActionButton.extended(
               onPressed: () => EntryModalSheet.showAdd(context),
               icon: const Icon(Icons.add),
@@ -90,7 +90,7 @@ class _MainShellPageState extends State<MainShellPage> {
             selectedIndex: currentIndex,
             onDestinationSelected: _onDestinationSelected,
             labelType: NavigationRailLabelType.all,
-            leading: currentIndex == 0
+            leading: currentIndex == 0 || currentIndex == 1
                 ? Padding(
                     padding: const EdgeInsets.only(bottom: 8),
                     child: FloatingActionButton(
