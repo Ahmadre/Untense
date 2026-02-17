@@ -197,7 +197,7 @@ class PdfReportService {
     // Load logo
     pw.MemoryImage? logo;
     try {
-      final logoBytes = await rootBundle.load('assets/logo.png');
+      final logoBytes = await rootBundle.load('assets/logo_claim.png');
       logo = pw.MemoryImage(logoBytes.buffer.asUint8List());
     } catch (_) {
       // logo not available — that's OK
@@ -609,7 +609,7 @@ class PdfReportService {
                         children: [
                           pw.TextSpan(
                             text:
-                                '${timeFmt.format(entry.timestamp)} – ${s['notes']}: ',
+                                '${timeFmt.format(entry.timestamp)} - ${s['notes']}: ',
                             style: pw.TextStyle(
                               fontSize: 8,
                               fontWeight: pw.FontWeight.bold,
